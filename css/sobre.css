@@ -1,0 +1,160 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: wheat;
+}
+
+.navbar {
+    background-color: #fff2da !important;
+}
+
+.navbar-brand {
+    padding: 5px 5px;
+}
+
+.navbar-brand img {
+    width: 110px;
+    height: auto;
+}
+
+.navbar-nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+
+.navbar-nav {
+    margin-left: auto;
+}
+
+
+.nav-link {
+    color: black  !important;
+    text-decoration: none;
+    font-family: 'Oswald', sans-serif;
+    font-size: 18px;
+    position: relative;
+    padding-bottom: 4px;
+}
+
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0%;
+    height: 2px;
+    background-color: #f5ae61;
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+.nav-link:hover {
+    color: #f5ae61 !important;
+    transition: color 0.3s ease;
+}
+
+section h2 {
+    background-color: #f5ae61;
+    padding: 30px;
+    text-align: center;
+    font-family: 'Oswald', sans-serif;
+    color: white;
+    font-size: 40px;
+}
+
+.container-historia {
+    display: flex;
+    background-color: white; 
+    margin: 50px auto;
+    padding: 40px;
+    max-width: 900px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    align-items: center;
+}
+
+.texto {
+    flex: 2;
+    padding-right: 30px;
+    text-align: left;
+}
+
+.texto h2 {
+    color: #ff6600;
+    font-size: 28px;
+    margin-bottom: 15px;
+}
+
+.texto p {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.card-chef {
+    flex: 1;
+    background-color: #fff9e6;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.card-chef img {
+    width: 100%;
+    border-radius: 10px;
+
+}
+
+.card-chef h3 {
+    color: #ff6600;
+    margin-top: 15px;
+}
+
+.card-chef p {
+    color: #888;
+    font-size: 14px;
+}
+
+footer {
+    background-color:  #f5ae61;
+    text-align: center;
+    color: black;
+    font-family: 'Oswald', sans-serif;
+    padding: 10px;
+    font-size: 18px;
+}
+
+footer a{
+    color: black;
+    text-decoration: none;
+    font-size: 45px;
+        
+}
+
+@media(max-width: 768px){
+     .container-historia{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+     .container-historia img {
+        width: 100%;
+        height: auto;
+    }
+
+     .card-chef img {
+        width: 100%;
+        height: auto;
+        
+    }
+}
