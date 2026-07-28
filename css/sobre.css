@@ -4,11 +4,11 @@
 }
 
 body {
-    background-color: wheat;
+    background-color: #f4cf8a;
 }
 
 .navbar {
-    background-color: #fff2da !important;
+    background-color: #f5ae61 !important;
 }
 
 .navbar-brand {
@@ -58,12 +58,12 @@ body {
 }
 
 .nav-link:hover {
-    color: #f5ae61 !important;
+    color: white !important;
     transition: color 0.3s ease;
 }
 
 section h2 {
-    background-color: #f5ae61;
+    background-color: #f4cf8a;
     padding: 30px;
     text-align: center;
     font-family: 'Oswald', sans-serif;

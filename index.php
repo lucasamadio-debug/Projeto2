@@ -34,11 +34,11 @@ if (isset($_GET["param"])) {
 
 } else { ?>
 
-    <section>
-        <h1>Thiago lanches o melhor de Araruna!</h1>
-        <p>Os melhores lanches da cidade, com ingredientes frescos e sabor inconfundível que aquece o coração!</p>
-        <button><a href="index.php?param=cardapio">Cardápio</a></button>
-    </section>
+    <section class="banner-fundo">
+     <h1>Thiago lanches o melhor de Araruna!</h1>
+      <p>Os melhores lanches da cidade, com ingredientes frescos e sabor inconfundível que aquece o coração!</p>
+     <button><a href="index.php?param=cardapio">Cardápio</a></button>
+   </section>
 
     <main>
         <div id="grid">
