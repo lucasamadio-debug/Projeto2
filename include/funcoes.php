@@ -1,9 +1,6 @@
 <?php
-require_once "include/coneçao.php";
+require_once 'coneçao.php';
 
-/** 
- * Busca todos os produtos agrupados por categoria
-*/
 function buscarTodosProdutos(mysqli $conn): array
 {
     if (!$conn) {
@@ -36,7 +33,6 @@ function buscarTodosProdutos(mysqli $conn): array
             ];
         }
 
-        // Converte o campo 'popular' do banco para verdadeiro (true) ou falso (false) de fato
         $ehPopular = ($linha['popular'] == 1 || $linha['popular'] === '1' || $linha['popular'] === true);
 
         $cardapio[$categoria]['lanches'][] = [

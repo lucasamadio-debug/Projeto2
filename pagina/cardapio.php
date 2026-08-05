@@ -1,46 +1,27 @@
 <?php
-
-/**
- * BANCO DE DADOS
- */
-require_once "include/coneçao.php";
 require_once "include/funcoes.php";
 
 $cardapio_completo = buscarTodosProdutos($conn);
 
-/**
- * FUNÇÃO DE FILTRO
- */
-function filtrarPopulares(array $secoes): array {
-    if (empty($secoes)) {
-        return [];
+function filtrarPorCategoria(array $secoes, $categoriaSelecionada): array {
+    if (empty($categoriaSelecionada) || $categoriaSelecionada === 'TODOS') {
+        return $secoes;
     }
+    
     $resultado = [];
     foreach ($secoes as $secao) {
-        $populares = [];
-        foreach ($secao['lanches'] as $lanche) {
-            // Aceita tanto booleano true quanto 1 ou "1"
-            if (isset($lanche['popular']) && ($lanche['popular'] === true || $lanche['popular'] == 1)) {
-                $populares[] = $lanche;
-            }
-        }
-        if (!empty($populares)) {
-            $secao['lanches'] = $populares;
+        if (strtoupper($secao['secao_titulo']) === strtoupper($categoriaSelecionada)) {
             $resultado[] = $secao;
         }
     }
     return $resultado;
 }
 
-$mostrarPopulares = false;
-$cardapioParaExibir = $cardapio_completo;
-
-if (isset($_GET['populares']) && $_GET['populares'] === 'sim') {
-    $mostrarPopulares = true;
-    $cardapioParaExibir = filtrarPopulares($cardapio_completo);
-}
+$categoriaAtual = $_GET['categoria'] ?? 'TODOS';
+$cardapioParaExibir = filtrarPorCategoria($cardapio_completo, $categoriaAtual);
 
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -61,16 +42,31 @@ if (isset($_GET['populares']) && $_GET['populares'] === 'sim') {
 
 <div class="container menu-conteudo my-5">
 
-    <!-- Botão de filtro -->
-    <div class="d-flex align-items-center gap-3 mb-4">
-        <?php if (!$mostrarPopulares): ?>
-            <a href="?populares=sim" class="btn-filtrar">⭐ Favoritos</a>
-        <?php else: ?>
-            <span style="font-family:'Oswald'; color:#ff6600;">⭐ Lanches favoritos</span>
-            <a href="?" class="btn btn-sm btn-outline-secondary" style="border-radius:10px; background-color:#fff0e6; color:#ff6600;">
-                ✖ Ver todos
-            </a>
-        <?php endif; ?>
+    <!-- MENU DE FILTRO POR CATEGORIAS -->
+    <div class="d-flex flex-wrap gap-2 mb-4 align-items-center">
+        <a href="?param=cardapio&categoria=TODOS" 
+           class="btn <?php echo ($categoriaAtual === 'TODOS') ? 'btn-primary text-white' : 'btn-outline-secondary bg-white'; ?>" 
+           style="border-radius: 12px; font-family: 'Oswald', sans-serif; <?php echo ($categoriaAtual === 'TODOS') ? 'background-color: #ff6600; border-color: #ff6600;' : 'color: #333;'; ?>">
+           🍔 Todos
+        </a>
+
+        <a href="?param=cardapio&categoria=PRENSADOS" 
+           class="btn <?php echo ($categoriaAtual === 'PRENSADOS') ? 'btn-primary text-white' : 'btn-outline-secondary bg-white'; ?>" 
+           style="border-radius: 12px; font-family: 'Oswald', sans-serif; <?php echo ($categoriaAtual === 'PRENSADOS') ? 'background-color: #ff6600; border-color: #ff6600;' : 'color: #333;'; ?>">
+           🥖 Prensados
+        </a>
+
+        <a href="?param=cardapio&categoria=HOT DOGS" 
+           class="btn <?php echo ($categoriaAtual === 'HOT DOGS') ? 'btn-primary text-white' : 'btn-outline-secondary bg-white'; ?>" 
+           style="border-radius: 12px; font-family: 'Oswald', sans-serif; <?php echo ($categoriaAtual === 'HOT DOGS') ? 'background-color: #ff6600; border-color: #ff6600;' : 'color: #333;'; ?>">
+           🌭 Hot Dogs
+        </a>
+
+        <a href="?param=cardapio&categoria=LANCHES GOURMET" 
+           class="btn <?php echo ($categoriaAtual === 'LANCHES GOURMET') ? 'btn-primary text-white' : 'btn-outline-secondary bg-white'; ?>" 
+           style="border-radius: 12px; font-family: 'Oswald', sans-serif; <?php echo ($categoriaAtual === 'LANCHES GOURMET') ? 'background-color: #ff6600; border-color: #ff6600;' : 'color: #333;'; ?>">
+           ✨ Lanches Gourmet
+        </a>
     </div>
 
     <!-- DADOS DO CARDÁPIO PUXADOS DO BANCO -->
