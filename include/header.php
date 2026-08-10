@@ -22,6 +22,9 @@
         <li class="nav-item">
           <a class="nav-link" href="#contato">Contato</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="admin"><img src="imagens/adm-logo.png" alt="Login" width="30" height="30"></a>
+        </li>
       </ul>
     </div>
   </div>

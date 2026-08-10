@@ -67,6 +67,8 @@ $cardapioParaExibir = filtrarPorCategoria($cardapio_completo, $categoriaAtual);
            style="border-radius: 12px; font-family: 'Oswald', sans-serif; <?php echo ($categoriaAtual === 'LANCHES GOURMET') ? 'background-color: #ff6600; border-color: #ff6600;' : 'color: #333;'; ?>">
            ✨ Lanches Gourmet
         </a>
+        
+    
     </div>
 
     <!-- DADOS DO CARDÁPIO PUXADOS DO BANCO -->

@@ -1,3 +1,32 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Conexão com o banco de dados
+require_once "include/coneçao.php";
+
+// PROCESSA O LOGIN QUANDO O FORMULÁRIO É ENVIADO
+if (!isset($_SESSION["thiagolanche"]) && $_POST) {
+    $email = trim($_POST["email"] ?? "");
+    $senha = trim($_POST["senha"] ?? "");
+
+    if (!empty($email) && !empty($senha)) {
+        $sql = "SELECT * FROM usuarios WHERE email = '$email' AND senha = '$senha' LIMIT 1";
+        $res = $conn->query($sql);
+
+        if ($res && $res->num_rows > 0) {
+            $usuario = $res->fetch_assoc();
+            $_SESSION["thiagolanche"] = $usuario;
+            
+            // Redireciona para recarregar e abrir a home do admin
+            header("Location: index.php?param=admin");
+            exit;
+        }
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -12,8 +41,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Oswald:wght@200..700&family=Outfit:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <title>Thiago Lanches</title>
-
-
 </head>
 
 <body>
@@ -28,6 +55,17 @@ if (isset($_GET["param"])) {
         include "pagina/sobre.php";
     } else if ($p[0] == "cardapio") {
         include "pagina/cardapio.php";
+    } else if ($p[0] == "admin" || $p[0] == "login") {
+        
+        // SE NÃO ESTIVER LOGADO -> EXIBE LOGIN
+        if (!isset($_SESSION["thiagolanche"])) {
+            include "pagina/login.php";
+        } 
+        // SE ESTIVER LOGADO -> EXIBE A HOME DO ADMIN
+        else {
+            include "pagina/home.php";
+        }
+
     } else {
         include "pagina/erro.php";
     }
