@@ -57,11 +57,11 @@ if (isset($_GET["param"])) {
         include "pagina/cardapio.php";
     } else if ($p[0] == "admin" || $p[0] == "login") {
         
-        // SE NÃO ESTIVER LOGADO -> EXIBE LOGIN
+        // SE NÃO ESTIVER LOGADO EXIBE LOGIN
         if (!isset($_SESSION["thiagolanche"])) {
             include "pagina/login.php";
         } 
-        // SE ESTIVER LOGADO -> EXIBE A HOME DO ADMIN
+        // SE ESTIVER LOGADO  EXIBE A HOME DO ADMIN
         else {
             include "pagina/home.php";
         }

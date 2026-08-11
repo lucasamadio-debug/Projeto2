@@ -4,12 +4,15 @@ require_once "include/coneçao.php";
 $aba = $_GET["aba"] ?? "lanches";
 $mensagem = "";
 
+// CAPTURA MENSAGEM DE PARÂMETRO DA URL PARA ALERTA
+$msgStatus = $_GET["msg"] ?? "";
+
 // LANCHES
 if ($aba == "lanches") {
     if (isset($_GET["acao"]) && $_GET["acao"] == "excluir") {
         $id = intval($_GET["id"]);
         $conn->query("DELETE FROM produto WHERE id_produto = $id");
-        header("Location: index.php?param=admin&aba=lanches");
+        header("Location: index.php?param=admin&aba=lanches&msg=excluido");
         exit;
     }
 
@@ -25,7 +28,7 @@ if ($aba == "lanches") {
             $sql = "UPDATE produto SET nome_lanches = '$nome', preco = '$preco', id_categoria = '$categoria' WHERE id_produto = $id";
         }
         $conn->query($sql);
-        header("Location: index.php?param=admin&aba=lanches");
+        header("Location: index.php?param=admin&aba=lanches&msg=salvo");
         exit;
     }
 }
@@ -36,7 +39,7 @@ if ($aba == "usuarios") {
     if (isset($_GET["acao"]) && $_GET["acao"] == "excluir") {
         $id = intval($_GET["id"]);
         $conn->query("DELETE FROM usuarios WHERE id_usuario = $id");
-        header("Location: index.php?param=admin&aba=usuarios");
+        header("Location: index.php?param=admin&aba=usuarios&msg=excluido");
         exit;
     }
 
@@ -52,7 +55,7 @@ if ($aba == "usuarios") {
             $sql = "UPDATE usuarios SET nome = '$nome', email = '$email', senha = '$senha' WHERE id_usuario = $id";
         }
         $conn->query($sql);
-        header("Location: index.php?param=admin&aba=usuarios");
+        header("Location: index.php?param=admin&aba=usuarios&msg=salvo");
         exit;
     }
 }
@@ -63,7 +66,7 @@ if ($aba == "categorias") {
     if (isset($_GET["acao"]) && $_GET["acao"] == "excluir") {
         $id = intval($_GET["id"]);
         $conn->query("DELETE FROM categoria WHERE id_categoria = $id");
-        header("Location: index.php?param=admin&aba=categorias");
+        header("Location: index.php?param=admin&aba=categorias&msg=excluido");
         exit;
     }
 
@@ -72,12 +75,12 @@ if ($aba == "categorias") {
         $nome = $_POST["nome"] ?? "";
 
         if (empty($id)) {
-            $sql = "INSERT INTO categoria (nome) VALUES ('$nome')";
+            $sql = "INSERT INTO categoria (nome_categoria) VALUES ('$nome')";
         } else {
-            $sql = "UPDATE categoria SET nome = '$nome' WHERE id_categoria = $id";
+            $sql = "UPDATE categoria SET nome_categoria = '$nome' WHERE id_categoria = $id";
         }
         $conn->query($sql);
-        header("Location: index.php?param=admin&aba=categorias");
+        header("Location: index.php?param=admin&aba=categorias&msg=salvo");
         exit;
     }
 }
@@ -99,6 +102,9 @@ if (isset($_GET["acao"]) && $_GET["acao"] == "editar") {
 $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
 ?>
 
+<!-- IMPORTAÇÃO DO SWEETALERT2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <!-- MENU ADMIN -->
 <div class="bg-dark text-white p-3 mb-4">
     <div class="container d-flex justify-content-between align-items-center">
@@ -116,6 +122,33 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
 </div>
 
 <div class="container mb-5">
+
+  
+    <!--DASHBOARD-->
+   
+    <div class="row mb-4">
+        <div class="col-md-4 mb-2">
+            <div class="card bg-white border-0 shadow-sm p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="text-muted text-uppercase fw-bold">Total de Lanches</small>
+                        <h2 id="dash-total" class="m-0 text-primary">0</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-2">
+            <div class="card bg-white border-0 shadow-sm p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="text-muted text-uppercase fw-bold">Preço Médio Lanche</small>
+                        <h2 id="dash-media" class="m-0 text-success">R$ 0,00</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!--GERENCIAMENTO DE LANCHES -->
     <?php if ($aba == "lanches"): ?>
@@ -188,7 +221,8 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
                                     <td>R$ <?php echo number_format($row['preco'], 2, ',', '.'); ?></td>
                                     <td class="text-end pe-3">
                                         <a href="index.php?param=admin&aba=lanches&acao=editar&id=<?php echo $row['id_produto']; ?>" class="btn btn-warning btn-sm">Editar</a>
-                                        <a href="index.php?param=admin&aba=lanches&acao=excluir&id=<?php echo $row['id_produto']; ?>" class="btn btn-danger btn-sm ms-1" onclick="return confirm('Deseja excluir?');">Excluir</a>
+                                        <!-- BOTÃO ALTERADO PARA DISPARAR O SWEETALERT2 -->
+                                        <button class="btn btn-danger btn-sm ms-1 btn-deletar" data-nome="<?php echo $row['nome_lanches']; ?>" data-url="index.php?param=admin&aba=lanches&acao=excluir&id=<?php echo $row['id_produto']; ?>">Excluir</button>
                                     </td>
                                 </tr>
                             <?php endwhile; endif; ?>
@@ -245,7 +279,7 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
                                     <td><?php echo $nomeCat; ?></td>
                                     <td class="text-end pe-3">
                                         <a href="index.php?param=admin&aba=categorias&acao=editar&id=<?php echo $row['id_categoria']; ?>" class="btn btn-warning btn-sm">Editar</a>
-                                        <a href="index.php?param=admin&aba=categorias&acao=excluir&id=<?php echo $row['id_categoria']; ?>" class="btn btn-danger btn-sm ms-1" onclick="return confirm('Deseja excluir?');">Excluir</a>
+                                        <button class="btn btn-danger btn-sm ms-1 btn-deletar" data-nome="<?php echo $nomeCat; ?>" data-url="index.php?param=admin&aba=categorias&acao=excluir&id=<?php echo $row['id_categoria']; ?>">Excluir</button>
                                     </td>
                                 </tr>
                             <?php endwhile; endif; ?>
@@ -310,7 +344,7 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
                                     <td><?php echo $row['email']; ?></td>
                                     <td class="text-end pe-3">
                                         <a href="index.php?param=admin&aba=usuarios&acao=editar&id=<?php echo $row['id_usuario']; ?>" class="btn btn-warning btn-sm">Editar</a>
-                                        <a href="index.php?param=admin&aba=usuarios&acao=excluir&id=<?php echo $row['id_usuario']; ?>" class="btn btn-danger btn-sm ms-1" onclick="return confirm('Deseja excluir?');">Excluir</a>
+                                        <button class="btn btn-danger btn-sm ms-1 btn-deletar" data-nome="<?php echo $row['nome']; ?>" data-url="index.php?param=admin&aba=usuarios&acao=excluir&id=<?php echo $row['id_usuario']; ?>">Excluir</button>
                                     </td>
                                 </tr>
                             <?php endwhile; endif; ?>
@@ -323,3 +357,90 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
     <?php endif; ?>
 
 </div>
+
+
+<!--DASHBOARD e SWEETALERT2-->
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    //CONSUMO DA API VIA FETCH + ASYNC/AWAIT + REDUCE / FILTER 
+    async function carregarDashboard() {
+        try {
+        // LINHA CORRIGIDA:
+            const resposta = await fetch('api/produtos.php');
+            const json = await resposta.json();
+
+            if (json.sucesso && json.dados) {
+                // flatMap unifica todos os lanches das seções num único Array
+                const todosLanches = json.dados.flatMap(secao => secao.lanches);
+
+                // USO DO REDUCE: Calcula a soma total dos preços para obter a média
+                const somaPrecos = todosLanches.reduce((acumulador, item) => acumulador + item.preco, 0);
+                const media = todosLanches.length > 0 ? (somaPrecos / todosLanches.length) : 0;
+
+                // Filtra os produtos marcados como populares
+                const populares = todosLanches.filter(item => item.popular === true);
+
+                // Atualização dos cards no DOM
+                document.getElementById('dash-total').innerText = todosLanches.length;
+                document.getElementById('dash-media').innerText = 'R$ ' + media.toFixed(2).replace('.', ',');
+            }
+        } catch (erro) {
+            console.error("Erro ao carregar os dados do Dashboard:", erro);
+        }
+    }
+
+    carregarDashboard();
+
+    //CONFIRMAÇÃO DE EXCLUSÃO ESTILIZADA COM SWEETALERT2 
+    const botoesDeletar = document.querySelectorAll('.btn-deletar');
+    
+    botoesDeletar.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const urlDestino = this.getAttribute('data-url');
+            const itemNome = this.getAttribute('data-nome') || 'este registro';
+
+            Swal.fire({
+                title: 'Tem certeza?',
+                text: `Deseja realmente excluir "${itemNome}"? Esta ação não pode ser desfeita!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sim, excluir!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = urlDestino;
+                }
+            });
+        });
+    });
+
+    // RETORNO DE SUCESSO AO SALVO OU EXCLUÍDO
+    const urlParams = new URLSearchParams(window.location.search);
+    const msg = urlParams.get('msg');
+
+    if (msg === 'salvo') {
+        Swal.fire({
+            icon: 'success',
+            title: 'Sucesso!',
+            text: 'Registro salvo com sucesso.',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    } else if (msg === 'excluido') {
+        Swal.fire({
+            icon: 'success',
+            title: 'Excluído!',
+            text: 'Registro removido com sucesso.',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    }
+
+});
+</script>

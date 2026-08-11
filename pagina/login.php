@@ -1,4 +1,4 @@
-<div class="login">
+ <div class="login">
     <div class="card shadow">
         <div class="card-header text-center">
             <img src="imagens/logo5.png" alt="Thiago Lanches" class="w-100" style="max-width: 150px;">
@@ -19,3 +19,4 @@
         </div>
     </div>
 </div>
+</html>
