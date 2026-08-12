@@ -36,25 +36,33 @@ if ($aba == "lanches") {
 
 // USUÁRIOS
 if ($aba == "usuarios") {
-    if (isset($_GET["acao"]) && $_GET["acao"] == "excluir") {
+    if (isset($_GET["action"]) && $_GET["action"] == "excluir") {
         $id = intval($_GET["id"]);
-        $conn->query("DELETE FROM usuarios WHERE id_usuario = $id");
+        $stmt = $conn->prepare("DELETE FROM usuarios WHERE id_usuario = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
         header("Location: index.php?param=admin&aba=usuarios&msg=excluido");
         exit;
     }
 
     if ($_POST) {
         $id = $_POST["id_usuario"] ?? "";
-        $nome = $_POST["nome"] ?? "";
-        $email = $_POST["email"] ?? "";
-        $senha = $_POST["senha"] ?? "";
+        $nome = trim($_POST["nome"] ?? "");
+        $email = trim($_POST["email"] ?? "");
+        $senhaPura = trim($_POST["senha"] ?? "");
 
         if (empty($id)) {
-            $sql = "INSERT INTO usuarios (nome, email, senha) VALUES ('$nome', '$email', '$senha')";
+            // Criptografa a nova senha com BCRYPT
+            $senhaHash = password_hash($senhaPura, PASSWORD_DEFAULT);
+            $stmt = $conn->prepare("INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)");
+            $stmt->bind_param("sss", $nome, $email, $senhaHash);
         } else {
-            $sql = "UPDATE usuarios SET nome = '$nome', email = '$email', senha = '$senha' WHERE id_usuario = $id";
+            // Se a senha foi alterada na edição gera novo hash senão mantém
+            $senhaHash = password_hash($senhaPura, PASSWORD_DEFAULT);
+            $stmt = $conn->prepare("UPDATE usuarios SET nome = ?, email = ?, senha = ? WHERE id_usuario = ?");
+            $stmt->bind_param("sssi", $nome, $email, $senhaHash, $id);
         }
-        $conn->query($sql);
+        $stmt->execute();
         header("Location: index.php?param=admin&aba=usuarios&msg=salvo");
         exit;
     }
@@ -123,11 +131,9 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
 
 <div class="container mb-5">
 
-  
-    <!--DASHBOARD-->
-   
+    <!-- DASHBOARD -->
     <div class="row mb-4">
-        <div class="col-md-4 mb-2">
+        <div class="col-md-6 mb-2">
             <div class="card bg-white border-0 shadow-sm p-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
@@ -138,7 +144,7 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
             </div>
         </div>
         
-        <div class="col-md-4 mb-2">
+        <div class="col-md-6 mb-2">
             <div class="card bg-white border-0 shadow-sm p-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
@@ -150,7 +156,7 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
         </div>
     </div>
 
-    <!--GERENCIAMENTO DE LANCHES -->
+    <!-- GERENCIAMENTO DE LANCHES -->
     <?php if ($aba == "lanches"): ?>
         <?php if ($modoNovo || $itemEditar): ?>
             <div class="card shadow-sm mb-4">
@@ -221,7 +227,6 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
                                     <td>R$ <?php echo number_format($row['preco'], 2, ',', '.'); ?></td>
                                     <td class="text-end pe-3">
                                         <a href="index.php?param=admin&aba=lanches&acao=editar&id=<?php echo $row['id_produto']; ?>" class="btn btn-warning btn-sm">Editar</a>
-                                        <!-- BOTÃO ALTERADO PARA DISPARAR O SWEETALERT2 -->
                                         <button class="btn btn-danger btn-sm ms-1 btn-deletar" data-nome="<?php echo $row['nome_lanches']; ?>" data-url="index.php?param=admin&aba=lanches&acao=excluir&id=<?php echo $row['id_produto']; ?>">Excluir</button>
                                     </td>
                                 </tr>
@@ -232,8 +237,7 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
             </div>
         <?php endif; ?>
 
-    
-    <!--GERENCIAMENTO DE CATEGORIAS -->
+    <!-- GERENCIAMENTO DE CATEGORIAS -->
     <?php elseif ($aba == "categorias"): ?>
         <?php if ($modoNovo || $itemEditar): ?>
             <div class="card shadow-sm mb-4">
@@ -289,7 +293,7 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
             </div>
         <?php endif; ?>
 
-    <!--GERENCIAMENTO DE USUÁRIOS -->
+    <!-- GERENCIAMENTO DE USUÁRIOS -->
     <?php elseif ($aba == "usuarios"): ?>
         <?php if ($modoNovo || $itemEditar): ?>
             <div class="card shadow-sm mb-4">
@@ -358,42 +362,13 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
 
 </div>
 
+<!-- CHAMADA DO DASHBOARD EM TYPESCRIPT COMPILADO -->
+<script type="module" src="./dist/dashboard.js"></script>
 
-<!--DASHBOARD e SWEETALERT2-->
-
+<!-- CONFIRMAÇÃO DE EXCLUSÃO E NOTIFICAÇÕES-->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
-    //CONSUMO DA API VIA FETCH + ASYNC/AWAIT + REDUCE / FILTER 
-    async function carregarDashboard() {
-        try {
-        // LINHA CORRIGIDA:
-            const resposta = await fetch('api/produtos.php');
-            const json = await resposta.json();
-
-            if (json.sucesso && json.dados) {
-                // flatMap unifica todos os lanches das seções num único Array
-                const todosLanches = json.dados.flatMap(secao => secao.lanches);
-
-                // USO DO REDUCE: Calcula a soma total dos preços para obter a média
-                const somaPrecos = todosLanches.reduce((acumulador, item) => acumulador + item.preco, 0);
-                const media = todosLanches.length > 0 ? (somaPrecos / todosLanches.length) : 0;
-
-                // Filtra os produtos marcados como populares
-                const populares = todosLanches.filter(item => item.popular === true);
-
-                // Atualização dos cards no DOM
-                document.getElementById('dash-total').innerText = todosLanches.length;
-                document.getElementById('dash-media').innerText = 'R$ ' + media.toFixed(2).replace('.', ',');
-            }
-        } catch (erro) {
-            console.error("Erro ao carregar os dados do Dashboard:", erro);
-        }
-    }
-
-    carregarDashboard();
-
-    //CONFIRMAÇÃO DE EXCLUSÃO ESTILIZADA COM SWEETALERT2 
     const botoesDeletar = document.querySelectorAll('.btn-deletar');
     
     botoesDeletar.forEach(btn => {
@@ -420,7 +395,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // RETORNO DE SUCESSO AO SALVO OU EXCLUÍDO
     const urlParams = new URLSearchParams(window.location.search);
     const msg = urlParams.get('msg');
 

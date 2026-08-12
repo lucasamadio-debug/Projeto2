@@ -12,20 +12,28 @@ if (!isset($_SESSION["thiagolanche"]) && $_POST) {
     $senha = trim($_POST["senha"] ?? "");
 
     if (!empty($email) && !empty($senha)) {
-        $sql = "SELECT * FROM usuarios WHERE email = '$email' AND senha = '$senha' LIMIT 1";
-        $res = $conn->query($sql);
+        // Uso de Prepared Statement para prevenir SQL Injection
+        $stmt = $conn->prepare("SELECT * FROM usuarios WHERE email = ? LIMIT 1");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $res = $stmt->get_result();
 
         if ($res && $res->num_rows > 0) {
             $usuario = $res->fetch_assoc();
-            $_SESSION["thiagolanche"] = $usuario;
             
-            // Redireciona para recarregar e abrir a home do admin
-            header("Location: index.php?param=admin");
-            exit;
+            // Verifica a senha
+            if (password_verify($senha, $usuario['senha']) || $senha === $usuario['senha']) {
+                $_SESSION["thiagolanche"] = $usuario;
+                
+                // Redireciona para recarregar e abrir a home do admin
+                header("Location: index.php?param=admin");
+                exit;
+            }
         }
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="pt-br">
