@@ -14,6 +14,7 @@ function buscarTodosProdutos(mysqli $conn): array
         'LANCHES GOURMET' => '✨'
     ];
 
+    
     $sql = "SELECT p.id_produto, p.nome_lanches, p.preco, 
                    p.popular, p.ingredientes, c.nome_categoria
             FROM produto p

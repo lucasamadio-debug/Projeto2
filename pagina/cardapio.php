@@ -62,12 +62,7 @@ $cardapioParaExibir = filtrarPorCategoria($cardapio_completo, $categoriaAtual);
            🌭 Hot Dogs
         </a>
 
-        <a href="?param=cardapio&categoria=LANCHES GOURMET" 
-           class="btn <?php echo ($categoriaAtual === 'LANCHES GOURMET') ? 'btn-primary text-white' : 'btn-outline-secondary bg-white'; ?>" 
-           style="border-radius: 12px; font-family: 'Oswald', sans-serif; <?php echo ($categoriaAtual === 'LANCHES GOURMET') ? 'background-color: #ff6600; border-color: #ff6600;' : 'color: #333;'; ?>">
-           ✨ Lanches Gourmet
-        </a>
-        
+    
     
     </div>
 

@@ -132,29 +132,43 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
 <div class="container mb-5">
 
     <!-- DASHBOARD -->
-    <div class="row mb-4">
-        <div class="col-md-6 mb-2">
-            <div class="card bg-white border-0 shadow-sm p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <small class="text-muted text-uppercase fw-bold">Total de Lanches</small>
-                        <h2 id="dash-total" class="m-0 text-primary">0</h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-6 mb-2">
-            <div class="card bg-white border-0 shadow-sm p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <small class="text-muted text-uppercase fw-bold">Preço Médio Lanche</small>
-                        <h2 id="dash-media" class="m-0 text-success">R$ 0,00</h2>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="row g-3 mb-4">
+  <div class="col-md-2">
+    <div class="card p-3 text-center shadow-sm">
+      <small class="text-muted fw-bold">TOTAL DE LANCHES</small>
+      <h3 id="dash-total" class="text-primary mt-2">0</h3>
     </div>
+  </div>
+
+  <div class="col-md-2">
+    <div class="card p-3 text-center shadow-sm">
+      <small class="text-muted fw-bold">PREÇO MÉDIO</small>
+      <h3 id="dash-media" class="text-success mt-2">R$ 0,00</h3>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card p-3 text-center shadow-sm">
+      <small class="text-muted fw-bold">MAIS CARO</small>
+      <h3 id="dash-mais-caro" class="text-danger mt-2">R$ 0,00</h3>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card p-3 text-center shadow-sm">
+      <small class="text-muted fw-bold">MAIS BARATO</small>
+      <h3 id="dash-mais-barato" class="text-info mt-2">R$ 0,00</h3>
+    </div>
+  </div>
+
+  <div class="col-md-2">
+    <div class="card p-3 text-center shadow-sm">
+      <small class="text-muted fw-bold">CATEGORIAS</small>
+      <h3 id="dash-categorias" class="text-warning mt-2">0</h3>
+    </div>
+  </div>
+</div>
+
 
     <!-- GERENCIAMENTO DE LANCHES -->
     <?php if ($aba == "lanches"): ?>
@@ -363,7 +377,7 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
 </div>
 
 <!-- CHAMADA DO DASHBOARD EM TYPESCRIPT COMPILADO -->
-<script type="module" src="./dist/dashboard.js"></script>
+<script src="dist/dashboard.js"></script>
 
 <!-- CONFIRMAÇÃO DE EXCLUSÃO E NOTIFICAÇÕES-->
 <script>
