@@ -34,35 +34,14 @@ if ($aba == "lanches") {
 }
 
 
-// USUÁRIOS
+// USUÁRIOS 
 if ($aba == "usuarios") {
-    if (isset($_GET["action"]) && $_GET["action"] == "excluir") {
-        $id = intval($_GET["id"]);
-        $stmt = $conn->prepare("DELETE FROM usuarios WHERE id_usuario = ?");
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        header("Location: index.php?param=admin&aba=usuarios&msg=excluido");
-        exit;
+    if (isset($_GET["acao"]) && $_GET["acao"] == "excluir") {
+        include "pagina/usuario/excluir.php";
     }
 
     if ($_POST) {
-        $id = $_POST["id_usuario"] ?? "";
-        $nome = trim($_POST["nome"] ?? "");
-        $email = trim($_POST["email"] ?? "");
-        $senhaPura = trim($_POST["senha"] ?? "");
-
-        if (empty($id)) {
-            $senhaHash = password_hash($senhaPura, PASSWORD_DEFAULT);
-            $stmt = $conn->prepare("INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)");
-            $stmt->bind_param("sss", $nome, $email, $senhaHash);
-        } else {
-            $senhaHash = password_hash($senhaPura, PASSWORD_DEFAULT);
-            $stmt = $conn->prepare("UPDATE usuarios SET nome = ?, email = ?, senha = ? WHERE id_usuario = ?");
-            $stmt->bind_param("sssi", $nome, $email, $senhaHash, $id);
-        }
-        $stmt->execute();
-        header("Location: index.php?param=admin&aba=usuarios&msg=salvo");
-        exit;
+        include "pagina/usuario/salvar.php";
     }
 }
 
@@ -200,7 +179,6 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
             </div>
           </div>
         </div>
-
 
         <script src="dist/dashboard.js"></script>
 
@@ -413,68 +391,13 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
 
     <!-- GERENCIAMENTO DE USUÁRIOS -->
     <?php elseif ($aba == "usuarios"): ?>
-        <?php if ($modoNovo || $itemEditar): ?>
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white py-3">
-                    <h3 class="m-0"><?php echo $itemEditar ? "Editar Usuário" : "Cadastrar Novo Usuário"; ?></h3>
-                </div>
-                <div class="card-body">
-                    <form method="post" action="index.php?param=admin&aba=usuarios">
-                        <input type="hidden" name="id_usuario" value="<?php echo $itemEditar['id_usuario'] ?? ''; ?>">
-                        <div class="mb-3">
-                            <label class="form-label">Nome:</label>
-                            <input type="text" name="nome" class="form-control" required value="<?php echo $itemEditar['nome'] ?? ''; ?>">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">E-mail:</label>
-                            <input type="email" name="email" class="form-control" required value="<?php echo $itemEditar['email'] ?? ''; ?>">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Senha:</label>
-                            <input type="password" name="senha" class="form-control" required value="<?php echo $itemEditar['senha'] ?? ''; ?>">
-                        </div>
-                        <button type="submit" class="btn btn-success">Salvar</button>
-                        <a href="index.php?param=admin&aba=usuarios" class="btn btn-secondary">Cancelar</a>
-                    </form>
-                </div>
-            </div>
-        <?php else: ?>
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                    <h3 class="m-0">Cadastro de Usuários Admin</h3>
-                    <a href="index.php?param=admin&aba=usuarios&acao=novo" class="btn btn-success btn-sm">Novo Usuário</a>
-                </div>
-                <div class="card-body p-0">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th class="ps-3">ID</th>
-                                <th>Nome</th>
-                                <th>E-mail</th>
-                                <th class="text-end pe-3">Opções</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            $res = $conn->query("SELECT * FROM usuarios ORDER BY id_usuario DESC");
-                            if ($res && $res->num_rows > 0):
-                                while ($row = $res->fetch_assoc()):
-                            ?>
-                                <tr>
-                                    <td class="ps-3 fw-bold"><?php echo $row['id_usuario']; ?></td>
-                                    <td><?php echo $row['nome']; ?></td>
-                                    <td><?php echo $row['email']; ?></td>
-                                    <td class="text-end pe-3">
-                                        <a href="index.php?param=admin&aba=usuarios&acao=editar&id=<?php echo $row['id_usuario']; ?>" class="btn btn-warning btn-sm">Editar</a>
-                                        <button class="btn btn-danger btn-sm ms-1 btn-deletar" data-nome="<?php echo $row['nome']; ?>" data-url="index.php?param=admin&aba=usuarios&acao=excluir&id=<?php echo $row['id_usuario']; ?>">Excluir</button>
-                                    </td>
-                                </tr>
-                            <?php endwhile; endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        <?php endif; ?>
+        <?php
+        if ($modoNovo || $itemEditar) {
+            include "pagina/usuario/cadastrar.php";
+        } else {
+            include "pagina/usuario/listar.php";
+        }
+        ?>
 
     <?php endif; ?>
 
