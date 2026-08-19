@@ -3,7 +3,9 @@ interface IProduto {
     nome_lanches?: string;
     preco: number | string;
     id_categoria?: number;
+    nome_categoria?: string;
     popular?: boolean | number;
+    quantidade_estoque?: number | string;
 }
 interface IRespostaAPI {
     sucesso: boolean;
@@ -13,7 +15,9 @@ interface IProdutoProcessado {
     nome: string;
     preco: number;
     idCategoria: number;
+    nomeCategoria: string;
     popular: boolean;
+    estoque: number;
 }
 interface IDadosDashboard {
     total: number;
@@ -23,6 +27,8 @@ interface IDadosDashboard {
     maisBaratoNome: string;
     maisBaratoPreco: number;
     totalCategorias: number;
+    totalBebidas: number;
+    estoqueBebidas: number;
 }
 declare function carregarDashboardTS(): Promise<void>;
 declare function atualizarDOM(dados: IDadosDashboard): void;

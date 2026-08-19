@@ -8,9 +8,9 @@ try {
         throw new Exception("Falha na conexão com a base de dados.");
     }
 
-    // Consulta simples para retornar a lista de produtos
-    // (agora incluindo "popular", usado pelo dashboard.ts)
-    $res = $conn->query("SELECT id_produto, nome_lanches, preco, id_categoria, popular FROM produto");
+    // Consulta agora usa a view vw_cardapio_completo, que já junta
+    // produto + categoria + estoque num só lugar
+    $res = $conn->query("SELECT id_produto, nome_lanches, preco, id_categoria, nome_categoria, popular, quantidade_estoque FROM vw_cardapio_completo");
     $produtos = [];
 
     if ($res) {

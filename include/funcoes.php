@@ -11,7 +11,8 @@ function buscarTodosProdutos(mysqli $conn): array
     $icones = [
         'PRENSADOS' => '🥖',
         'HOT DOGS' => '🌭',
-        'LANCHES GOURMET' => '✨'
+        'LANCHES GOURMET' => '✨',
+        'BEBIDAS' => '🥤'
     ];
 
     

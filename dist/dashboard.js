@@ -6,24 +6,43 @@ async function carregarDashboardTS() {
             resposta = await fetch('../api/produtos.php');
         }
         const json = await resposta.json();
+        // EDGE CASE: sem sucesso, sem array, ou array vazio -> mensagem
         if (!json.sucesso || !Array.isArray(json.dados) || json.dados.length === 0) {
             exibirDashboardVazio();
             return;
         }
-        const produtos = json.dados.map((produto) => { var _a; return ({
+        // MAP: transforma o array bruto da API (preco pode vir como string)
+        // num array limpo e tipado, pronto pra ser usado no resto do código
+        const produtos = json.dados.map((produto) => { var _a, _b; return ({
             nome: (_a = produto.nome_lanches) !== null && _a !== void 0 ? _a : 'Sem nome',
             preco: Number(produto.preco) || 0,
             idCategoria: Number(produto.id_categoria) || 0,
-            popular: produto.popular === true || produto.popular === 1
+            nomeCategoria: ((_b = produto.nome_categoria) !== null && _b !== void 0 ? _b : '').toUpperCase(),
+            popular: produto.popular === true || produto.popular === 1,
+            estoque: Number(produto.quantidade_estoque) || 0
         }); });
+        // REDUCE: soma o valor de todos os lanches (cálculo financeiro
+        // consolidado) pra depois calcular a média
         const totalLanches = produtos.length;
         const somaPrecos = produtos.reduce((acumulado, produto) => acumulado + produto.preco, 0);
         const media = somaPrecos / totalLanches;
+        // REDUCE: acha o produto inteiro (não só o número) mais caro e mais
+        // barato, comparando um item contra o outro
         const maisCaro = produtos.reduce((atual, produto) => (produto.preco > atual.preco ? produto : atual));
         const maisBarato = produtos.reduce((atual, produto) => (produto.preco < atual.preco ? produto : atual));
+        // FILTER: segmenta os produtos que estão com preço acima da média
         const produtosAcimaDaMedia = produtos.filter((produto) => produto.preco > media);
+        // MAP: extrai só os ids de categoria, pra contar quantas categorias
+        // diferentes existem sem duplicar
         const idsCategorias = produtos.map((produto) => produto.idCategoria);
         const totalCategorias = new Set(idsCategorias).size;
+        // FILTER: separa só os produtos da categoria BEBIDAS
+        const bebidas = produtos.filter((produto) => produto.nomeCategoria === 'BEBIDAS');
+        const totalBebidas = bebidas.length;
+        // REDUCE: soma a quantidade em estoque só das bebidas
+        const estoqueBebidas = bebidas.reduce((acumulado, produto) => acumulado + produto.estoque, 0);
+        // REDUCE + objeto chave-valor: ranking de frequência -> qual
+        // categoria tem mais produtos cadastrados (indicador de destaque)
         const contagemPorCategoria = produtos.reduce((contador, produto) => {
             contador[produto.idCategoria] = (contador[produto.idCategoria] || 0) + 1;
             return contador;
@@ -36,8 +55,6 @@ async function carregarDashboardTS() {
                 categoriaDestaque = Number(idCategoria);
             }
         }
-        // Esses dois ainda não têm card no HTML, então só registramos no
-        // console por enquanto (dá pra criar um card novo depois se quiser)
         console.log(`Produtos acima da média de preço: ${produtosAcimaDaMedia.length}`);
         console.log(`Categoria com mais produtos: ID ${categoriaDestaque} (${maiorContagem} produtos)`);
         const dados = {
@@ -47,7 +64,9 @@ async function carregarDashboardTS() {
             maisCaroPreco: maisCaro.preco,
             maisBaratoNome: maisBarato.nome,
             maisBaratoPreco: maisBarato.preco,
-            totalCategorias
+            totalCategorias,
+            totalBebidas,
+            estoqueBebidas
         };
         atualizarDOM(dados);
     }
@@ -56,12 +75,15 @@ async function carregarDashboardTS() {
         exibirDashboardVazio();
     }
 }
+// Só cuida de colocar os dados já calculados no HTML (responsabilidade única)
 function atualizarDOM(dados) {
     const elTotal = document.getElementById('dash-total');
     const elMedia = document.getElementById('dash-media');
     const elMaisCaro = document.getElementById('dash-mais-caro');
     const elMaisBarato = document.getElementById('dash-mais-barato');
     const elCategorias = document.getElementById('dash-categorias');
+    const elTotalBebidas = document.getElementById('dash-total-bebidas');
+    const elEstoqueBebidas = document.getElementById('dash-estoque-bebidas');
     if (elTotal)
         elTotal.innerText = dados.total.toString();
     if (elMedia)
@@ -72,15 +94,26 @@ function atualizarDOM(dados) {
         elMaisBarato.innerText = `${formatarPreco(dados.maisBaratoPreco)} (${dados.maisBaratoNome})`;
     if (elCategorias)
         elCategorias.innerText = dados.totalCategorias.toString();
+    if (elTotalBebidas)
+        elTotalBebidas.innerText = dados.totalBebidas.toString();
+    if (elEstoqueBebidas)
+        elEstoqueBebidas.innerText = `${dados.estoqueBebidas} un.`;
 }
+// EDGE CASE: sem dados (banco vazio ou erro na API) -> mensagem elegante
+// em vez de deixar os cards com "0" sem explicação
 function exibirDashboardVazio() {
-    const ids = ['dash-total', 'dash-media', 'dash-mais-caro', 'dash-mais-barato', 'dash-categorias'];
+    const ids = [
+        'dash-total', 'dash-media', 'dash-mais-caro', 'dash-mais-barato',
+        'dash-categorias', 'dash-total-bebidas', 'dash-estoque-bebidas'
+    ];
     ids.forEach((id) => {
         const el = document.getElementById(id);
         if (el)
             el.innerText = 'Nenhum dado registrado';
     });
 }
+// Função auxiliar reaproveitada em vários pontos (evita repetir a mesma
+// lógica de formatação em cada lugar que precisa mostrar um preço)
 function formatarPreco(valor) {
     return `R$ ${valor.toFixed(2).replace('.', ',')}`;
 }

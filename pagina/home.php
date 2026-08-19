@@ -1,7 +1,7 @@
 <?php
 require_once "include/coneçao.php";
 
-$aba = $_GET["aba"] ?? "lanches";
+$aba = $_GET["aba"] ?? "dashboard";
 $mensagem = "";
 
 // CAPTURA MENSAGEM DE PARÂMETRO DA URL PARA ALERTA
@@ -52,12 +52,10 @@ if ($aba == "usuarios") {
         $senhaPura = trim($_POST["senha"] ?? "");
 
         if (empty($id)) {
-            // Criptografa a nova senha com BCRYPT
             $senhaHash = password_hash($senhaPura, PASSWORD_DEFAULT);
             $stmt = $conn->prepare("INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)");
             $stmt->bind_param("sss", $nome, $email, $senhaHash);
         } else {
-            // Se a senha foi alterada na edição gera novo hash senão mantém
             $senhaHash = password_hash($senhaPura, PASSWORD_DEFAULT);
             $stmt = $conn->prepare("UPDATE usuarios SET nome = ?, email = ?, senha = ? WHERE id_usuario = ?");
             $stmt->bind_param("sssi", $nome, $email, $senhaHash, $id);
@@ -93,6 +91,21 @@ if ($aba == "categorias") {
     }
 }
 
+
+// ESTOQUE
+if ($aba == "estoque") {
+    if ($_POST) {
+        $id = intval($_POST["id_estoque"] ?? 0);
+        $quantidade = intval($_POST["quantidade"] ?? 0);
+
+        $stmt = $conn->prepare("UPDATE estoque SET quantidade = ? WHERE id_estoque = ?");
+        $stmt->bind_param("ii", $quantidade, $id);
+        $stmt->execute();
+        header("Location: index.php?param=admin&aba=estoque&msg=salvo");
+        exit;
+    }
+}
+
 // BUSCA ITEM PARA EDITAR
 $itemEditar = null;
 if (isset($_GET["acao"]) && $_GET["acao"] == "editar") {
@@ -103,6 +116,8 @@ if (isset($_GET["acao"]) && $_GET["acao"] == "editar") {
         $res = $conn->query("SELECT * FROM usuarios WHERE id_usuario = $id");
     } else if ($aba == "categorias") {
         $res = $conn->query("SELECT * FROM categoria WHERE id_categoria = $id");
+    } else if ($aba == "estoque") {
+        $res = $conn->query("SELECT * FROM estoque WHERE id_estoque = $id");
     }
     if ($res) $itemEditar = $res->fetch_assoc();
 }
@@ -118,8 +133,10 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
     <div class="container d-flex justify-content-between align-items-center">
         <div>
             <span class="badge bg-warning text-dark fs-6 me-3">Thiago Lanches</span>
+            <a href="index.php?param=admin&aba=dashboard" class="text-white text-decoration-none me-3 <?php echo $aba == 'dashboard' ? 'fw-bold border-bottom' : ''; ?>">Dashboard</a>
             <a href="index.php?param=admin&aba=lanches" class="text-white text-decoration-none me-3 <?php echo $aba == 'lanches' ? 'fw-bold border-bottom' : ''; ?>">Lanches</a>
             <a href="index.php?param=admin&aba=categorias" class="text-white text-decoration-none me-3 <?php echo $aba == 'categorias' ? 'fw-bold border-bottom' : ''; ?>">Categorias</a>
+            <a href="index.php?param=admin&aba=estoque" class="text-white text-decoration-none me-3 <?php echo $aba == 'estoque' ? 'fw-bold border-bottom' : ''; ?>">Estoque</a>
             <a href="index.php?param=admin&aba=usuarios" class="text-white text-decoration-none <?php echo $aba == 'usuarios' ? 'fw-bold border-bottom' : ''; ?>">Usuários</a>
         </div>
         <div>
@@ -132,46 +149,63 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
 <div class="container mb-5">
 
     <!-- DASHBOARD -->
-    <div class="row g-3 mb-4">
-  <div class="col-md-2">
-    <div class="card p-3 text-center shadow-sm">
-      <small class="text-muted fw-bold">TOTAL DE LANCHES</small>
-      <h3 id="dash-total" class="text-primary mt-2">0</h3>
-    </div>
-  </div>
+    <?php if ($aba == "dashboard"): ?>
+        <div class="row g-3 mb-4">
+          <div class="col-md-2">
+            <div class="card p-3 text-center shadow-sm">
+              <small class="text-muted fw-bold">TOTAL DE LANCHES</small>
+              <h3 id="dash-total" class="text-primary mt-2">0</h3>
+            </div>
+          </div>
 
-  <div class="col-md-2">
-    <div class="card p-3 text-center shadow-sm">
-      <small class="text-muted fw-bold">PREÇO MÉDIO</small>
-      <h3 id="dash-media" class="text-success mt-2">R$ 0,00</h3>
-    </div>
-  </div>
+          <div class="col-md-2">
+            <div class="card p-3 text-center shadow-sm">
+              <small class="text-muted fw-bold">PREÇO MÉDIO</small>
+              <h3 id="dash-media" class="text-success mt-2">R$ 0,00</h3>
+            </div>
+          </div>
 
-  <div class="col-md-3">
-    <div class="card p-3 text-center shadow-sm">
-      <small class="text-muted fw-bold">MAIS CARO</small>
-      <h3 id="dash-mais-caro" class="text-danger mt-2">R$ 0,00</h3>
-    </div>
-  </div>
+          <div class="col-md-3">
+            <div class="card p-3 text-center shadow-sm">
+              <small class="text-muted fw-bold">MAIS CARO</small>
+              <h3 id="dash-mais-caro" class="text-danger mt-2">R$ 0,00</h3>
+            </div>
+          </div>
 
-  <div class="col-md-3">
-    <div class="card p-3 text-center shadow-sm">
-      <small class="text-muted fw-bold">MAIS BARATO</small>
-      <h3 id="dash-mais-barato" class="text-info mt-2">R$ 0,00</h3>
-    </div>
-  </div>
+          <div class="col-md-3">
+            <div class="card p-3 text-center shadow-sm">
+              <small class="text-muted fw-bold">MAIS BARATO</small>
+              <h3 id="dash-mais-barato" class="text-info mt-2">R$ 0,00</h3>
+            </div>
+          </div>
 
-  <div class="col-md-2">
-    <div class="card p-3 text-center shadow-sm">
-      <small class="text-muted fw-bold">CATEGORIAS</small>
-      <h3 id="dash-categorias" class="text-warning mt-2">0</h3>
-    </div>
-  </div>
-</div>
+          <div class="col-md-2">
+            <div class="card p-3 text-center shadow-sm">
+              <small class="text-muted fw-bold">CATEGORIAS</small>
+              <h3 id="dash-categorias" class="text-warning mt-2">0</h3>
+            </div>
+          </div>
 
+          <div class="col-md-2">
+            <div class="card p-3 text-center shadow-sm">
+              <small class="text-muted fw-bold">BEBIDAS CADASTRADAS</small>
+              <h3 id="dash-total-bebidas" class="text-primary mt-2">0</h3>
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <div class="card p-3 text-center shadow-sm">
+              <small class="text-muted fw-bold">ESTOQUE DE BEBIDAS</small>
+              <h3 id="dash-estoque-bebidas" class="text-success mt-2">0</h3>
+            </div>
+          </div>
+        </div>
+
+
+        <script src="dist/dashboard.js"></script>
 
     <!-- GERENCIAMENTO DE LANCHES -->
-    <?php if ($aba == "lanches"): ?>
+    <?php elseif ($aba == "lanches"): ?>
         <?php if ($modoNovo || $itemEditar): ?>
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-white py-3">
@@ -307,6 +341,76 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
             </div>
         <?php endif; ?>
 
+    <!-- GERENCIAMENTO DE ESTOQUE -->
+    <?php elseif ($aba == "estoque"): ?>
+        <?php if ($itemEditar): ?>
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h3 class="m-0">Editar Estoque</h3>
+                </div>
+                <div class="card-body">
+                    <?php
+                    $resProd = $conn->query("SELECT nome_lanches FROM produto WHERE id_produto = " . intval($itemEditar['id_produto']));
+                    $nomeProduto = $resProd ? ($resProd->fetch_assoc()['nome_lanches'] ?? '') : '';
+                    ?>
+                    <form method="post" action="index.php?param=admin&aba=estoque">
+                        <input type="hidden" name="id_estoque" value="<?php echo $itemEditar['id_estoque']; ?>">
+                        <div class="mb-3">
+                            <label class="form-label">Produto:</label>
+                            <input type="text" class="form-control" value="<?php echo $nomeProduto; ?>" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Quantidade em estoque:</label>
+                            <input type="number" name="quantidade" class="form-control" min="0" required value="<?php echo $itemEditar['quantidade']; ?>">
+                        </div>
+                        <button type="submit" class="btn btn-success">Salvar</button>
+                        <a href="index.php?param=admin&aba=estoque" class="btn btn-secondary">Cancelar</a>
+                    </form>
+                </div>
+            </div>
+        <?php else: ?>
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h3 class="m-0">Controle de Estoque</h3>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Produto</th>
+                                <th>Categoria</th>
+                                <th>Quantidade</th>
+                                <th class="text-end pe-3">Opções</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $sql = "SELECT e.id_estoque, e.quantidade, p.nome_lanches, c.nome_categoria
+                                    FROM estoque e
+                                    JOIN produto p ON e.id_produto = p.id_produto
+                                    JOIN categoria c ON p.id_categoria = c.id_categoria
+                                    WHERE UPPER(c.nome_categoria) = 'BEBIDAS'
+                                    ORDER BY p.nome_lanches";
+                            $res = $conn->query($sql);
+                            if ($res && $res->num_rows > 0):
+                                while ($row = $res->fetch_assoc()):
+                                    $corBadge = $row['quantidade'] < 5 ? 'bg-danger' : 'bg-success';
+                            ?>
+                                <tr>
+                                    <td class="ps-3 fw-bold"><?php echo $row['nome_lanches']; ?></td>
+                                    <td><span class="badge bg-info text-dark"><?php echo $row['nome_categoria']; ?></span></td>
+                                    <td><span class="badge <?php echo $corBadge; ?>"><?php echo $row['quantidade']; ?> un.</span></td>
+                                    <td class="text-end pe-3">
+                                        <a href="index.php?param=admin&aba=estoque&acao=editar&id=<?php echo $row['id_estoque']; ?>" class="btn btn-warning btn-sm">Editar</a>
+                                    </td>
+                                </tr>
+                            <?php endwhile; endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        <?php endif; ?>
+
     <!-- GERENCIAMENTO DE USUÁRIOS -->
     <?php elseif ($aba == "usuarios"): ?>
         <?php if ($modoNovo || $itemEditar): ?>
@@ -375,9 +479,6 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
     <?php endif; ?>
 
 </div>
-
-<!-- CHAMADA DO DASHBOARD EM TYPESCRIPT COMPILADO -->
-<script src="dist/dashboard.js"></script>
 
 <!-- CONFIRMAÇÃO DE EXCLUSÃO E NOTIFICAÇÕES-->
 <script>
