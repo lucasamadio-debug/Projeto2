@@ -10,26 +10,11 @@ $msgStatus = $_GET["msg"] ?? "";
 // LANCHES
 if ($aba == "lanches") {
     if (isset($_GET["acao"]) && $_GET["acao"] == "excluir") {
-        $id = intval($_GET["id"]);
-        $conn->query("DELETE FROM produto WHERE id_produto = $id");
-        header("Location: index.php?param=admin&aba=lanches&msg=excluido");
-        exit;
+        include "pagina/lanche/excluir.php";
     }
 
     if ($_POST) {
-        $id = $_POST["id_produto"] ?? "";
-        $nome = $_POST["nome_lanches"] ?? "";
-        $preco = $_POST["preco"] ?? "";
-        $categoria = $_POST["categoria_id"] ?? 1;
-
-        if (empty($id)) {
-            $sql = "INSERT INTO produto (nome_lanches, preco, id_categoria) VALUES ('$nome', '$preco', '$categoria')";
-        } else {
-            $sql = "UPDATE produto SET nome_lanches = '$nome', preco = '$preco', id_categoria = '$categoria' WHERE id_produto = $id";
-        }
-        $conn->query($sql);
-        header("Location: index.php?param=admin&aba=lanches&msg=salvo");
-        exit;
+        include "pagina/lanche/salvar.php";
     }
 }
 
@@ -49,24 +34,11 @@ if ($aba == "usuarios") {
 // CATEGORIAS
 if ($aba == "categorias") {
     if (isset($_GET["acao"]) && $_GET["acao"] == "excluir") {
-        $id = intval($_GET["id"]);
-        $conn->query("DELETE FROM categoria WHERE id_categoria = $id");
-        header("Location: index.php?param=admin&aba=categorias&msg=excluido");
-        exit;
+        include "pagina/categoria/excluir.php";
     }
 
     if ($_POST) {
-        $id = $_POST["id_categoria"] ?? "";
-        $nome = $_POST["nome"] ?? "";
-
-        if (empty($id)) {
-            $sql = "INSERT INTO categoria (nome_categoria) VALUES ('$nome')";
-        } else {
-            $sql = "UPDATE categoria SET nome_categoria = '$nome' WHERE id_categoria = $id";
-        }
-        $conn->query($sql);
-        header("Location: index.php?param=admin&aba=categorias&msg=salvo");
-        exit;
+        include "pagina/categoria/salvar.php";
     }
 }
 
@@ -74,14 +46,7 @@ if ($aba == "categorias") {
 // ESTOQUE
 if ($aba == "estoque") {
     if ($_POST) {
-        $id = intval($_POST["id_estoque"] ?? 0);
-        $quantidade = intval($_POST["quantidade"] ?? 0);
-
-        $stmt = $conn->prepare("UPDATE estoque SET quantidade = ? WHERE id_estoque = ?");
-        $stmt->bind_param("ii", $quantidade, $id);
-        $stmt->execute();
-        header("Location: index.php?param=admin&aba=estoque&msg=salvo");
-        exit;
+        include "pagina/estoque/salvar.php";
     }
 }
 
@@ -184,210 +149,33 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
 
     <!-- GERENCIAMENTO DE LANCHES -->
     <?php elseif ($aba == "lanches"): ?>
-        <?php if ($modoNovo || $itemEditar): ?>
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white py-3">
-                    <h3 class="m-0"><?php echo $itemEditar ? "Editar Lanche" : "Cadastrar Novo Lanche"; ?></h3>
-                </div>
-                <div class="card-body">
-                    <form method="post" action="index.php?param=admin&aba=lanches">
-                        <input type="hidden" name="id_produto" value="<?php echo $itemEditar['id_produto'] ?? ''; ?>">
-                        <div class="mb-3">
-                            <label class="form-label">Nome do Lanche:</label>
-                            <input type="text" name="nome_lanches" class="form-control" required value="<?php echo $itemEditar['nome_lanches'] ?? ''; ?>">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Categoria:</label>
-                            <select name="categoria_id" class="form-control" required>
-                                <?php
-                                $resCat = $conn->query("SELECT * FROM categoria");
-                                if ($resCat && $resCat->num_rows > 0) {
-                                    while ($cat = $resCat->fetch_assoc()) {
-                                        $idCat = $cat['id_categoria'] ?? $cat['id'] ?? 1;
-                                        $nomeCat = $cat['nome'] ?? $cat['nome_categoria'] ?? 'Categoria';
-                                        $selected = (isset($itemEditar['id_categoria']) && $itemEditar['id_categoria'] == $idCat) ? 'selected' : '';
-                                        echo "<option value='{$idCat}' {$selected}>{$nomeCat}</option>";
-                                    }
-                                }
-                                ?>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Preço (R$):</label>
-                            <input type="text" name="preco" class="form-control" required value="<?php echo $itemEditar['preco'] ?? ''; ?>">
-                        </div>
-                        <button type="submit" class="btn btn-success">Salvar</button>
-                        <a href="index.php?param=admin&aba=lanches" class="btn btn-secondary">Cancelar</a>
-                    </form>
-                </div>
-            </div>
-        <?php else: ?>
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                    <h3 class="m-0">Cadastro de Lanches</h3>
-                    <a href="index.php?param=admin&aba=lanches&acao=novo" class="btn btn-success btn-sm">Cadastrar Novo</a>
-                </div>
-                <div class="card-body p-0">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th class="ps-3">ID</th>
-                                <th>Nome do Lanche</th>
-                                <th>Categoria</th>
-                                <th>Preço</th>
-                                <th class="text-end pe-3">Opções</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            $sql = "SELECT p.*, c.* FROM produto p LEFT JOIN categoria c ON p.id_categoria = c.id_categoria ORDER BY p.id_produto DESC";
-                            $res = $conn->query($sql);
-                            if ($res && $res->num_rows > 0):
-                                while ($row = $res->fetch_assoc()):
-                                    $nomeCat = $row['nome'] ?? $row['nome_categoria'] ?? 'Geral';
-                            ?>
-                                <tr>
-                                    <td class="ps-3 fw-bold"><?php echo $row['id_produto']; ?></td>
-                                    <td><?php echo $row['nome_lanches']; ?></td>
-                                    <td><span class="badge bg-info text-dark"><?php echo $nomeCat; ?></span></td>
-                                    <td>R$ <?php echo number_format($row['preco'], 2, ',', '.'); ?></td>
-                                    <td class="text-end pe-3">
-                                        <a href="index.php?param=admin&aba=lanches&acao=editar&id=<?php echo $row['id_produto']; ?>" class="btn btn-warning btn-sm">Editar</a>
-                                        <button class="btn btn-danger btn-sm ms-1 btn-deletar" data-nome="<?php echo $row['nome_lanches']; ?>" data-url="index.php?param=admin&aba=lanches&acao=excluir&id=<?php echo $row['id_produto']; ?>">Excluir</button>
-                                    </td>
-                                </tr>
-                            <?php endwhile; endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        <?php endif; ?>
+        <?php
+        if ($modoNovo || $itemEditar) {
+            include "lanche/cadastrar.php";
+        } else {
+            include "lanche/listar.php";
+        }
+        ?>
 
     <!-- GERENCIAMENTO DE CATEGORIAS -->
     <?php elseif ($aba == "categorias"): ?>
-        <?php if ($modoNovo || $itemEditar): ?>
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white py-3">
-                    <h3 class="m-0"><?php echo $itemEditar ? "Editar Categoria" : "Cadastrar Nova Categoria"; ?></h3>
-                </div>
-                <div class="card-body">
-                    <form method="post" action="index.php?param=admin&aba=categorias">
-                        <input type="hidden" name="id_categoria" value="<?php echo $itemEditar['id_categoria'] ?? ''; ?>">
-                        <div class="mb-3">
-                            <label class="form-label">Nome da Categoria:</label>
-                            <input type="text" name="nome" class="form-control" required value="<?php echo $itemEditar['nome'] ?? $itemEditar['nome_categoria'] ?? ''; ?>" placeholder="Ex: Bebidas, Sobremesas...">
-                        </div>
-                        <button type="submit" class="btn btn-success">Salvar</button>
-                        <a href="index.php?param=admin&aba=categorias" class="btn btn-secondary">Cancelar</a>
-                    </form>
-                </div>
-            </div>
-        <?php else: ?>
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                    <h3 class="m-0">Cadastro de Categorias</h3>
-                    <a href="index.php?param=admin&aba=categorias&acao=novo" class="btn btn-success btn-sm">Nova Categoria</a>
-                </div>
-                <div class="card-body p-0">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th class="ps-3">ID</th>
-                                <th>Nome da Categoria</th>
-                                <th class="text-end pe-3">Opções</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            $res = $conn->query("SELECT * FROM categoria ORDER BY id_categoria DESC");
-                            if ($res && $res->num_rows > 0):
-                                while ($row = $res->fetch_assoc()):
-                                    $nomeCat = $row['nome'] ?? $row['nome_categoria'] ?? 'Sem nome';
-                            ?>
-                                <tr>
-                                    <td class="ps-3 fw-bold"><?php echo $row['id_categoria']; ?></td>
-                                    <td><?php echo $nomeCat; ?></td>
-                                    <td class="text-end pe-3">
-                                        <a href="index.php?param=admin&aba=categorias&acao=editar&id=<?php echo $row['id_categoria']; ?>" class="btn btn-warning btn-sm">Editar</a>
-                                        <button class="btn btn-danger btn-sm ms-1 btn-deletar" data-nome="<?php echo $nomeCat; ?>" data-url="index.php?param=admin&aba=categorias&acao=excluir&id=<?php echo $row['id_categoria']; ?>">Excluir</button>
-                                    </td>
-                                </tr>
-                            <?php endwhile; endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        <?php endif; ?>
+        <?php
+        if ($modoNovo || $itemEditar) {
+            include "pagina/categoria/cadastrar.php";
+        } else {
+            include "pagina/categoria/listar.php";
+        }
+        ?>
 
     <!-- GERENCIAMENTO DE ESTOQUE -->
     <?php elseif ($aba == "estoque"): ?>
-        <?php if ($itemEditar): ?>
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white py-3">
-                    <h3 class="m-0">Editar Estoque</h3>
-                </div>
-                <div class="card-body">
-                    <?php
-                    $resProd = $conn->query("SELECT nome_lanches FROM produto WHERE id_produto = " . intval($itemEditar['id_produto']));
-                    $nomeProduto = $resProd ? ($resProd->fetch_assoc()['nome_lanches'] ?? '') : '';
-                    ?>
-                    <form method="post" action="index.php?param=admin&aba=estoque">
-                        <input type="hidden" name="id_estoque" value="<?php echo $itemEditar['id_estoque']; ?>">
-                        <div class="mb-3">
-                            <label class="form-label">Produto:</label>
-                            <input type="text" class="form-control" value="<?php echo $nomeProduto; ?>" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Quantidade em estoque:</label>
-                            <input type="number" name="quantidade" class="form-control" min="0" required value="<?php echo $itemEditar['quantidade']; ?>">
-                        </div>
-                        <button type="submit" class="btn btn-success">Salvar</button>
-                        <a href="index.php?param=admin&aba=estoque" class="btn btn-secondary">Cancelar</a>
-                    </form>
-                </div>
-            </div>
-        <?php else: ?>
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                    <h3 class="m-0">Controle de Estoque</h3>
-                </div>
-                <div class="card-body p-0">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th class="ps-3">Produto</th>
-                                <th>Categoria</th>
-                                <th>Quantidade</th>
-                                <th class="text-end pe-3">Opções</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            $sql = "SELECT e.id_estoque, e.quantidade, p.nome_lanches, c.nome_categoria
-                                    FROM estoque e
-                                    JOIN produto p ON e.id_produto = p.id_produto
-                                    JOIN categoria c ON p.id_categoria = c.id_categoria
-                                    WHERE UPPER(c.nome_categoria) = 'BEBIDAS'
-                                    ORDER BY p.nome_lanches";
-                            $res = $conn->query($sql);
-                            if ($res && $res->num_rows > 0):
-                                while ($row = $res->fetch_assoc()):
-                                    $corBadge = $row['quantidade'] < 5 ? 'bg-danger' : 'bg-success';
-                            ?>
-                                <tr>
-                                    <td class="ps-3 fw-bold"><?php echo $row['nome_lanches']; ?></td>
-                                    <td><span class="badge bg-info text-dark"><?php echo $row['nome_categoria']; ?></span></td>
-                                    <td><span class="badge <?php echo $corBadge; ?>"><?php echo $row['quantidade']; ?> un.</span></td>
-                                    <td class="text-end pe-3">
-                                        <a href="index.php?param=admin&aba=estoque&acao=editar&id=<?php echo $row['id_estoque']; ?>" class="btn btn-warning btn-sm">Editar</a>
-                                    </td>
-                                </tr>
-                            <?php endwhile; endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        <?php endif; ?>
+        <?php
+        if ($itemEditar) {
+            include "pagina/estoque/cadastrar.php";
+        } else {
+            include "pagina/estoque/listar.php";
+        }
+        ?>
 
     <!-- GERENCIAMENTO DE USUÁRIOS -->
     <?php elseif ($aba == "usuarios"): ?>

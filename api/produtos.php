@@ -8,9 +8,13 @@ try {
         throw new Exception("Falha na conexão com a base de dados.");
     }
 
-    // Consulta agora usa a view vw_cardapio_completo, que já junta
-    // produto + categoria + estoque num só lugar
-    $res = $conn->query("SELECT id_produto, nome_lanches, preco, id_categoria, nome_categoria, popular, quantidade_estoque FROM vw_cardapio_completo");
+    $categoria = isset($_GET['categoria']) ? intval($_GET['categoria']) : 0;
+
+    $stmt = $conn->prepare("CALL sp_listar_produtos(?)");
+    $stmt->bind_param("i", $categoria);
+    $stmt->execute();
+
+    $res = $stmt->get_result();
     $produtos = [];
 
     if ($res) {
@@ -18,6 +22,9 @@ try {
             $produtos[] = $row;
         }
     }
+
+    $stmt->close();
+    $conn->next_result();
 
     http_response_code(200);
     echo json_encode([
