@@ -191,7 +191,7 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
 
 </div>
 
-<!-- CONFIRMAÇÃO DE EXCLUSÃO E NOTIFICAÇÕES-->
+<!-- CONFIRMAÇÃO DE EXCLUSÃO-->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 

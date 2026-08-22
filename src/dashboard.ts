@@ -1,4 +1,4 @@
-// Interfaces que definem o formato dos dados que vêm do backend PHP
+// formato dos dados que vêm do backend PHP
 interface IProduto {
     id_produto?: number;
     nome_lanches?: string;
@@ -14,7 +14,7 @@ interface IRespostaAPI {
     dados: IProduto[];
 }
 
-// Formato depois de prossesar os dados brutos da API
+// prossesar os dados brutos da API
 interface IProdutoProcessado {
     nome: string;
     preco: number;
@@ -24,7 +24,7 @@ interface IProdutoProcessado {
     estoque: number;
 }
 
-// Dados prontos pra jogar no HTML
+// Dados jogados no HTML
 interface IDadosDashboard {
     total: number;
     media: number;
