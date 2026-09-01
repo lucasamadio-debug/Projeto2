@@ -28,8 +28,10 @@
                         <td><span class="badge bg-info text-dark"><?php echo $nomeCat; ?></span></td>
                         <td>R$ <?php echo number_format($row['preco'], 2, ',', '.'); ?></td>
                         <td class="text-end pe-3">
-                            <a href="index.php?param=admin&aba=lanches&acao=editar&id=<?php echo $row['id_produto']; ?>" class="btn btn-warning btn-sm">Editar</a>
-                            <button class="btn btn-danger btn-sm ms-1 btn-deletar" data-nome="<?php echo $row['nome_lanches']; ?>" data-url="index.php?param=admin&aba=lanches&acao=excluir&id=<?php echo $row['id_produto']; ?>">Excluir</button>
+                            <div class="d-flex justify-content-end align-items-center gap-1">
+                                <a href="index.php?param=admin&aba=lanches&acao=editar&id=<?php echo $row['id_produto']; ?>" class="btn btn-warning btn-sm">Editar</a>
+                                <a href="#" class="btn btn-danger btn-sm btn-deletar" data-nome="<?php echo $row['nome_lanches']; ?>" data-url="index.php?param=admin&aba=lanches&acao=excluir&id=<?php echo $row['id_produto']; ?>">Excluir</a>
+                            </div>
                         </td>
                     </tr>
                 <?php endwhile; endif; ?>

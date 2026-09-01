@@ -17,14 +17,10 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
---
 -- Banco de dados: `thiagolanche`
---
 
 DELIMITER $$
---
 -- Procedimentos
---
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_listar_produtos` (IN `p_categoria` INT)   BEGIN
     IF p_categoria IS NULL OR p_categoria = 0 THEN
         SELECT * FROM vw_cardapio_completo
@@ -36,9 +32,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_listar_produtos` (IN `p_categori
     END IF;
 END$$
 
---
 -- Funções
---
 CREATE DEFINER=`root`@`localhost` FUNCTION `fn_formatar_preco` (`p_valor` FLOAT) RETURNS VARCHAR(20) CHARSET utf8mb4 COLLATE utf8mb4_general_ci DETERMINISTIC BEGIN
     RETURN CONCAT('R$ ', REPLACE(FORMAT(p_valor, 2), '.', ','));
 END$$
@@ -76,9 +70,7 @@ CREATE TABLE `estoque` (
   `quantidade` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
 -- Despejando dados para a tabela "estoque"
---
 
 INSERT INTO `estoque` (`id_estoque`, `id_produto`, `quantidade`) VALUES
 (32, 39, 8),
@@ -88,9 +80,7 @@ INSERT INTO `estoque` (`id_estoque`, `id_produto`, `quantidade`) VALUES
 (36, 43, 10),
 (37, 44, 15);
 
---
 -- Acionadores "estoque"
---
 DELIMITER $$
 CREATE TRIGGER `trg_estoque_quantidade_positiva` BEFORE UPDATE ON `estoque` FOR EACH ROW BEGIN
     IF NEW.quantidade < 0 THEN
@@ -100,21 +90,14 @@ END
 $$
 DELIMITER ;
 
--- --------------------------------------------------------
-
---
 -- Estrutura para tabela `ingredientes`
---
 
 CREATE TABLE `ingredientes` (
   `id_ingredientes` int(11) NOT NULL,
   `nome_ingrediente` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
 -- Despejando dados para a tabela `ingredientes`
---
-
 INSERT INTO `ingredientes` (`id_ingredientes`, `nome_ingrediente`) VALUES
 (1, 'Pão'),
 (2, 'Queijo'),
@@ -135,12 +118,7 @@ INSERT INTO `ingredientes` (`id_ingredientes`, `nome_ingrediente`) VALUES
 (17, 'Molho da casa'),
 (18, 'Cebola roxa');
 
--- --------------------------------------------------------
-
---
 -- Estrutura para tabela `produto`
---
-
 CREATE TABLE `produto` (
   `id_produto` int(11) NOT NULL,
   `id_categoria` int(11) NOT NULL,
@@ -150,9 +128,7 @@ CREATE TABLE `produto` (
   `ingredientes` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
 -- Despejando dados para a tabela `produto`
---
 
 INSERT INTO `produto` (`id_produto`, `id_categoria`, `nome_lanches`, `preco`, `popular`, `ingredientes`) VALUES
 (1, 1, 'x-salada', 22.00, 0, 'Pão, queijo, presunto, tomate, hamburguer e alface'),
@@ -181,9 +157,7 @@ INSERT INTO `produto` (`id_produto`, `id_categoria`, `nome_lanches`, `preco`, `p
 (43, 9, 'coca cola 1L', 12.00, 0, NULL),
 (44, 9, 'coca cola 2l', 15.00, 0, NULL);
 
---
 -- Acionadores `produto`
---
 DELIMITER $$
 CREATE TRIGGER `trg_produto_cria_estoque` AFTER INSERT ON `produto` FOR EACH ROW BEGIN
     DECLARE v_nome_categoria VARCHAR(100);
@@ -205,11 +179,7 @@ END
 $$
 DELIMITER ;
 
--- --------------------------------------------------------
-
---
 -- Estrutura para tabela `produto_ingredientes`
---
 
 CREATE TABLE `produto_ingredientes` (
   `id_produto` int(11) NOT NULL,
@@ -325,11 +295,7 @@ INSERT INTO `produto_ingredientes` (`id_produto`, `id_ingredientes`) VALUES
 (18, 6),
 (18, 16);
 
--- --------------------------------------------------------
-
---
 -- Estrutura para tabela `usuarios`
---
 
 CREATE TABLE `usuarios` (
   `id_usuario` int(11) NOT NULL,
@@ -338,20 +304,14 @@ CREATE TABLE `usuarios` (
   `senha` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
 -- Despejando dados para a tabela `usuarios`
---
 
 INSERT INTO `usuarios` (`id_usuario`, `nome`, `email`, `senha`) VALUES
 (1, 'Admin', 'adminthiagolanches@gmail.com', '123456'),
 (2, 'luna', 'luna@gmail.com', '$2y$10$XUafL91AzJ5z0phtmdHNXeXGUSI27HAOJfq5nkBeo.T1G/aMus2Aq');
 
--- --------------------------------------------------------
-
---
 -- Estrutura stand-in para view `vw_cardapio_completo`
--- (Veja abaixo para a visão atual)
---
+
 CREATE TABLE `vw_cardapio_completo` (
 `id_produto` int(11)
 ,`nome_lanches` varchar(100)
@@ -363,12 +323,8 @@ CREATE TABLE `vw_cardapio_completo` (
 ,`quantidade_estoque` int(11)
 );
 
--- --------------------------------------------------------
-
---
 -- Estrutura stand-in para view `vw_estatisticas_categoria`
--- (Veja abaixo para a visão atual)
---
+
 CREATE TABLE `vw_estatisticas_categoria` (
 `id_categoria` int(11)
 ,`nome_categoria` varchar(100)
@@ -379,12 +335,7 @@ CREATE TABLE `vw_estatisticas_categoria` (
 ,`total_em_estoque` decimal(32,0)
 );
 
--- --------------------------------------------------------
-
---
 -- Estrutura stand-in para view `vw_produtos_acima_media`
--- (Veja abaixo para a visão atual)
---
 CREATE TABLE `vw_produtos_acima_media` (
 `id_produto` int(11)
 ,`nome_lanches` varchar(100)
@@ -392,59 +343,45 @@ CREATE TABLE `vw_produtos_acima_media` (
 ,`nome_categoria` varchar(100)
 );
 
--- --------------------------------------------------------
-
---
 -- Estrutura para view `vw_cardapio_completo`
---
+
 DROP TABLE IF EXISTS `vw_cardapio_completo`;
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_cardapio_completo`  AS SELECT `p`.`id_produto` AS `id_produto`, `p`.`nome_lanches` AS `nome_lanches`, `p`.`preco` AS `preco`, `p`.`popular` AS `popular`, `p`.`ingredientes` AS `ingredientes`, `c`.`id_categoria` AS `id_categoria`, `c`.`nome_categoria` AS `nome_categoria`, coalesce(`e`.`quantidade`,0) AS `quantidade_estoque` FROM ((`produto` `p` join `categoria` `c` on(`p`.`id_categoria` = `c`.`id_categoria`)) left join `estoque` `e` on(`e`.`id_produto` = `p`.`id_produto`)) ;
 
--- --------------------------------------------------------
-
---
 -- Estrutura para view `vw_estatisticas_categoria`
---
+
 DROP TABLE IF EXISTS `vw_estatisticas_categoria`;
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_estatisticas_categoria`  AS WITH stats AS (SELECT `produto`.`id_categoria` AS `id_categoria`, count(0) AS `total_produtos`, avg(`produto`.`preco`) AS `preco_medio`, max(`produto`.`preco`) AS `preco_maximo`, min(`produto`.`preco`) AS `preco_minimo` FROM `produto` GROUP BY `produto`.`id_categoria`), estoque_por_produto AS (SELECT `estoque`.`id_produto` AS `id_produto`, `estoque`.`quantidade` AS `quantidade` FROM `estoque`)  SELECT `c`.`id_categoria` AS `id_categoria`, `c`.`nome_categoria` AS `nome_categoria`, `s`.`total_produtos` AS `total_produtos`, `s`.`preco_medio` AS `preco_medio`, `s`.`preco_maximo` AS `preco_maximo`, `s`.`preco_minimo` AS `preco_minimo`, coalesce((select sum(`e`.`quantidade`) from (`estoque_por_produto` `e` join `produto` `p` on(`p`.`id_produto` = `e`.`id_produto`)) where `p`.`id_categoria` = `c`.`id_categoria`),0) AS `total_em_estoque` FROM (`categoria` `c` join `stats` `s` on(`c`.`id_categoria` = `s`.`id_categoria`)) ORDER BY `c`.`id_categoria` ASC`id_categoria`  ;
 
--- --------------------------------------------------------
-
---
 -- Estrutura para view `vw_produtos_acima_media`
---
+
 DROP TABLE IF EXISTS `vw_produtos_acima_media`;
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_produtos_acima_media`  AS SELECT `p`.`id_produto` AS `id_produto`, `p`.`nome_lanches` AS `nome_lanches`, `p`.`preco` AS `preco`, `c`.`nome_categoria` AS `nome_categoria` FROM (`produto` `p` join `categoria` `c` on(`p`.`id_categoria` = `c`.`id_categoria`)) WHERE `p`.`preco` > (select avg(`produto`.`preco`) from `produto`) ORDER BY `p`.`preco` DESC ;
 
---
 -- Índices para tabelas despejadas
---
 
---
 -- Índices de tabela `categoria`
---
+
 ALTER TABLE `categoria`
   ADD PRIMARY KEY (`id_categoria`);
 
---
 -- Índices de tabela `estoque`
---
+
 ALTER TABLE `estoque`
   ADD PRIMARY KEY (`id_estoque`),
   ADD UNIQUE KEY `uk_estoque_produto` (`id_produto`);
 
---
 -- Índices de tabela `ingredientes`
---
+
 ALTER TABLE `ingredientes`
   ADD PRIMARY KEY (`id_ingredientes`);
 
---
+
 -- Índices de tabela `produto`
---
+
 ALTER TABLE `produto`
   ADD PRIMARY KEY (`id_produto`),
   ADD KEY `id_categoria` (`id_categoria`);
@@ -463,59 +400,47 @@ ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`id_usuario`),
   ADD UNIQUE KEY `email` (`email`);
 
---
--- AUTO_INCREMENT para tabelas despejadas
---
 
---
+-- AUTO_INCREMENT para tabelas despejadas
+
 -- AUTO_INCREMENT de tabela `categoria`
---
+
 ALTER TABLE `categoria`
   MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
---
 -- AUTO_INCREMENT de tabela `estoque`
---
+
 ALTER TABLE `estoque`
   MODIFY `id_estoque` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
---
 -- AUTO_INCREMENT de tabela `ingredientes`
---
+
 ALTER TABLE `ingredientes`
   MODIFY `id_ingredientes` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
---
 -- AUTO_INCREMENT de tabela `produto`
---
+
 ALTER TABLE `produto`
   MODIFY `id_produto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
 
---
 -- AUTO_INCREMENT de tabela `usuarios`
---
+
 ALTER TABLE `usuarios`
   MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
---
--- Restrições para tabelas despejadas
---
 
---
+-- Restrições para tabelas despejadas
 -- Restrições para tabelas `estoque`
---
+
 ALTER TABLE `estoque`
   ADD CONSTRAINT `fk_estoque_produto` FOREIGN KEY (`id_produto`) REFERENCES `produto` (`id_produto`) ON DELETE CASCADE;
 
---
 -- Restrições para tabelas `produto`
---
 ALTER TABLE `produto`
   ADD CONSTRAINT `produto_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`);
 
---
 -- Restrições para tabelas `produto_ingredientes`
---
+
 ALTER TABLE `produto_ingredientes`
   ADD CONSTRAINT `produto_ingredientes_ibfk_1` FOREIGN KEY (`id_produto`) REFERENCES `produto` (`id_produto`),
   ADD CONSTRAINT `produto_ingredientes_ibfk_2` FOREIGN KEY (`id_ingredientes`) REFERENCES `ingredientes` (`id_ingredientes`);

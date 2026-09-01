@@ -23,8 +23,10 @@
                         <td class="ps-3 fw-bold"><?php echo $row['id_categoria']; ?></td>
                         <td><?php echo $nomeCat; ?></td>
                         <td class="text-end pe-3">
-                            <a href="index.php?param=admin&aba=categorias&acao=editar&id=<?php echo $row['id_categoria']; ?>" class="btn btn-warning btn-sm">Editar</a>
-                            <button class="btn btn-danger btn-sm ms-1 btn-deletar" data-nome="<?php echo $nomeCat; ?>" data-url="index.php?param=admin&aba=categorias&acao=excluir&id=<?php echo $row['id_categoria']; ?>">Excluir</button>
+                            <div class="d-flex justify-content-end align-items-center gap-1">
+                                <a href="index.php?param=admin&aba=categorias&acao=editar&id=<?php echo $row['id_categoria']; ?>" class="btn btn-warning btn-sm">Editar</a>
+                                <a href="#" class="btn btn-danger btn-sm btn-deletar" data-nome="<?php echo $nomeCat; ?>" data-url="index.php?param=admin&aba=categorias&acao=excluir&id=<?php echo $row['id_categoria']; ?>">Excluir</a>
+                            </div>
                         </td>
                     </tr>
                 <?php endwhile; endif; ?>

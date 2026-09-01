@@ -24,8 +24,10 @@
                         <td><?php echo $row['nome']; ?></td>
                         <td><?php echo $row['email']; ?></td>
                         <td class="text-end pe-3">
-                            <a href="index.php?param=admin&aba=usuarios&acao=editar&id=<?php echo $row['id_usuario']; ?>" class="btn btn-warning btn-sm">Editar</a>
-                            <button class="btn btn-danger btn-sm ms-1 btn-deletar" data-nome="<?php echo $row['nome']; ?>" data-url="index.php?param=admin&aba=usuarios&acao=excluir&id=<?php echo $row['id_usuario']; ?>">Excluir</button>
+                            <div class="d-flex justify-content-end align-items-center gap-1">
+                                <a href="index.php?param=admin&aba=usuarios&acao=editar&id=<?php echo $row['id_usuario']; ?>" class="btn btn-warning btn-sm">Editar</a>
+                                <a href="#" class="btn btn-danger btn-sm btn-deletar" data-nome="<?php echo $row['nome']; ?>" data-url="index.php?param=admin&aba=usuarios&acao=excluir&id=<?php echo $row['id_usuario']; ?>">Excluir</a>
+                            </div>
                         </td>
                     </tr>
                 <?php endwhile; endif; ?>

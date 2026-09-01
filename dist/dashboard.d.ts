@@ -29,9 +29,14 @@ interface IDadosDashboard {
     totalCategorias: number;
     totalBebidas: number;
     estoqueBebidas: number;
+    maiorEstoqueNome: string;
+    maiorEstoqueQtd: number;
+    menorEstoqueNome: string;
+    menorEstoqueQtd: number;
 }
 declare function carregarDashboardTS(): Promise<void>;
 declare function atualizarDOM(dados: IDadosDashboard): void;
+declare function renderizarRankingEstoque(bebidas: IProdutoProcessado[]): void;
 declare function exibirDashboardVazio(): void;
 declare function formatarPreco(valor: number): string;
 //# sourceMappingURL=dashboard.d.ts.map

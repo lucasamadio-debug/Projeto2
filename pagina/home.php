@@ -94,55 +94,93 @@ $modoNovo = isset($_GET["acao"]) && $_GET["acao"] == "novo";
 
     <!-- DASHBOARD -->
     <?php if ($aba == "dashboard"): ?>
-        <div class="row g-3 mb-4">
-          <div class="col-md-2">
-            <div class="card p-3 text-center shadow-sm">
+        <div class="row row-cols-2 row-cols-md-4 g-3 mb-4 mx-auto" style="max-width: 1100px;">
+          <div class="col">
+            <div class="card p-3 text-center shadow-sm h-100 d-flex flex-column justify-content-center">
               <small class="text-muted fw-bold">TOTAL DE LANCHES</small>
-              <h3 id="dash-total" class="text-primary mt-2">0</h3>
+              <h3 id="dash-total" class="text-primary mt-2 mb-0">0</h3>
             </div>
           </div>
 
-          <div class="col-md-2">
-            <div class="card p-3 text-center shadow-sm">
+          <div class="col">
+            <div class="card p-3 text-center shadow-sm h-100 d-flex flex-column justify-content-center">
               <small class="text-muted fw-bold">PREÇO MÉDIO</small>
-              <h3 id="dash-media" class="text-success mt-2">R$ 0,00</h3>
+              <h3 id="dash-media" class="text-success mt-2 mb-0">R$ 0,00</h3>
             </div>
           </div>
 
-          <div class="col-md-3">
-            <div class="card p-3 text-center shadow-sm">
+          <div class="col">
+            <div class="card p-3 text-center shadow-sm h-100 d-flex flex-column justify-content-center">
               <small class="text-muted fw-bold">MAIS CARO</small>
-              <h3 id="dash-mais-caro" class="text-danger mt-2">R$ 0,00</h3>
+              <h3 id="dash-mais-caro" class="text-danger mt-2 mb-0">R$ 0,00</h3>
+              <small id="dash-mais-caro-nome" class="text-muted"></small>
             </div>
           </div>
 
-          <div class="col-md-3">
-            <div class="card p-3 text-center shadow-sm">
+          <div class="col">
+            <div class="card p-3 text-center shadow-sm h-100 d-flex flex-column justify-content-center">
               <small class="text-muted fw-bold">MAIS BARATO</small>
-              <h3 id="dash-mais-barato" class="text-info mt-2">R$ 0,00</h3>
+              <h3 id="dash-mais-barato" class="text-info mt-2 mb-0">R$ 0,00</h3>
+              <small id="dash-mais-barato-nome" class="text-muted"></small>
             </div>
           </div>
 
-          <div class="col-md-2">
-            <div class="card p-3 text-center shadow-sm">
+          <div class="col">
+            <div class="card p-3 text-center shadow-sm h-100 d-flex flex-column justify-content-center">
               <small class="text-muted fw-bold">CATEGORIAS</small>
-              <h3 id="dash-categorias" class="text-warning mt-2">0</h3>
+              <h3 id="dash-categorias" class="text-warning mt-2 mb-0">0</h3>
             </div>
           </div>
 
-          <div class="col-md-2">
-            <div class="card p-3 text-center shadow-sm">
+          <div class="col">
+            <div class="card p-3 text-center shadow-sm h-100 d-flex flex-column justify-content-center">
               <small class="text-muted fw-bold">BEBIDAS CADASTRADAS</small>
-              <h3 id="dash-total-bebidas" class="text-primary mt-2">0</h3>
+              <h3 id="dash-total-bebidas" class="text-primary mt-2 mb-0">0</h3>
             </div>
           </div>
 
-          <div class="col-md-2">
-            <div class="card p-3 text-center shadow-sm">
+          <div class="col">
+            <div class="card p-3 text-center shadow-sm h-100 d-flex flex-column justify-content-center">
               <small class="text-muted fw-bold">ESTOQUE DE BEBIDAS</small>
-              <h3 id="dash-estoque-bebidas" class="text-success mt-2">0</h3>
+              <h3 id="dash-estoque-bebidas" class="text-success mt-2 mb-0">0</h3>
             </div>
           </div>
+
+          <div class="col">
+            <div class="card p-3 text-center shadow-sm h-100 d-flex flex-column justify-content-center">
+              <small class="text-muted fw-bold">RANKING DE ESTOQUE</small>
+              <div class="mt-2">
+                <div class="text-success fw-bold" id="dash-maior-estoque">-</div>
+                <small class="text-muted">Maior estoque</small>
+              </div>
+              <div class="mt-2">
+                <div class="text-danger fw-bold" id="dash-menor-estoque">-</div>
+                <small class="text-muted">Menor estoque</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mt-3">
+            <div class="card-header bg-white py-3">
+                <h3 class="m-0">Ranking de Estoque </h3>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">#</th>
+                            <th>Produto</th>
+                            <th class="text-end pe-3">Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dash-ranking-estoque">
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-3">Carregando...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <script src="dist/dashboard.js"></script>
