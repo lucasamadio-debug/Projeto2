@@ -12,7 +12,7 @@ if (!isset($_SESSION["thiagolanche"]) && $_POST) {
     $senha = trim($_POST["senha"] ?? "");
 
     if (!empty($email) && !empty($senha)) {
-        // Uso de Prepared Statement para prevenir SQL Injection
+        // Prepared Statement para prevenir SQL Injection
         $stmt = $conn->prepare("SELECT * FROM usuarios WHERE email = ? LIMIT 1");
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -25,7 +25,7 @@ if (!isset($_SESSION["thiagolanche"]) && $_POST) {
             if (password_verify($senha, $usuario['senha']) || $senha === $usuario['senha']) {
                 $_SESSION["thiagolanche"] = $usuario;
                 
-                // Redireciona para recarregar e abrir a home do admin
+                // Redireciona para recarregar pra abrir a home 
                 header("Location: index.php?param=admin");
                 exit;
             }

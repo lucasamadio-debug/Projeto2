@@ -89,7 +89,7 @@ CREATE TRIGGER `trg_estoque_quantidade_positiva` BEFORE UPDATE ON `estoque` FOR 
 END
 $$
 DELIMITER ;
-
+ 
 -- Estrutura para tabela `ingredientes`
 
 CREATE TABLE `ingredientes` (
